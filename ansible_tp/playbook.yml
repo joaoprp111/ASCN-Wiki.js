@@ -1,0 +1,21 @@
+- name: wiki_deployment
+  hosts: wiki
+  become: yes
+  become_method: sudo
+  
+  tasks:
+    - name: Update system packages
+      apt:
+              update_cache: yes
+              force_apt_get: yes
+              dpkg_options: "force-confdef,force-confold"
+              upgrade: dist
+      register: result
+      notify: Fix problems with packages
+
+  handlers:
+    - name: Fix problems with packages
+      shell: sudo dpkg --configure -a
+      when: result.stdout != "0"
+                        
+

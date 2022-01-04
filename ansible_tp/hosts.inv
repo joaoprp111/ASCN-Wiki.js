@@ -1,0 +1,5 @@
+[wiki]
+10.142.0.3
+
+[wiki:vars]
+ansible_ssh_common_args="-o StrictHostKeyChecking=no"
