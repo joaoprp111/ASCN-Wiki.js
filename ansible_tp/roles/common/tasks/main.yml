@@ -1,0 +1,88 @@
+---
+
+- name: Update system packages
+  apt:
+          update_cache: yes
+          force_apt_get: yes
+          dpkg_options: "force-confdef,force-confold"
+          upgrade: dist
+
+
+- name: Install packages
+  apt:
+          name: "{{ item }}"
+          force_apt_get: yes
+          install_recommends: yes
+          state: latest
+  loop: "{{ common_packages }}"
+
+
+- name: Install packages that allow apt to be used over HTTPS
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop: "{{ common_packages_https }}"
+
+- name: Add an apt signing key for Docker
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add apt repository for stable version
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+    state: present
+
+- name: Install docker
+  apt: 
+    update_cache: yes
+    name: docker.io
+    state: present
+
+- name: Verify if docker is active
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  notify: restart docker
+    
+
+- name: Change daemon.json
+  #shell: echo "{"exec-opts": ["native.cgroupdriver=systemd"]}" >> /etc/docker/daemon.json
+  lineinfile:
+      path: /etc/docker/daemon.json
+      line: '{"exec-opts": ["native.cgroupdriver=systemd"]}'
+      create: yes
+
+- name: Add user to docker group
+  user:
+      name: joaopereira
+      group: docker
+
+# - name: Create user called tester with hashed password
+#   user:
+#           name: "{{ common_username }}"
+#           password: "{{ common_password }}"
+
+
+# - name: Add user tester to the sudo group
+#   user:
+#           name: "{{ common_username }}"
+#           groups: sudo
+#           append: yes
+
+
+# - name: Prepare user tester for ssh public key authentication
+#   authorized_key:
+#           user: "{{ common_username }}"
+#           key: "{{ common_local_public_key }}"
+
+
+# - name: Make sure OpenNTPD and OpenSSH services are enabled and running
+#   service:
+#           name: "{{ item }}"
+#           enabled: yes
+#           state: started
+
+#   loop: "{{ common_services }}"

@@ -1,0 +1,20 @@
+---
+
+common_packages:
+    - vim-nox
+    - openntpd
+    - sudo
+
+common_packages_https:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - gnupg-agent
+    - software-properties-common
+
+common_username: tester
+common_password: "{{lookup('file', '../files/hashed_password')}}"
+common_local_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+common_services:
+    - sshd
+    - openntpd
