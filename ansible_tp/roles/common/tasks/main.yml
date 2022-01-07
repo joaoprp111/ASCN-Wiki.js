@@ -34,19 +34,26 @@
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
     state: present
 
-- name: Install docker
+- name: remove docker
+  apt: name=docker.io state=absent
+
+- name: Install docker and its dependencies
   apt: 
     update_cache: yes
     name: docker.io
     state: present
 
-- name: Verify if docker is active
-  service:
-    name: docker
+# - name: Restart docker
+#   service:
+#     name: docker
+#     state: started
+#     enabled: yes
+#   notify: restart docker
+
+- name: start docker
+  service: 
+    name: docker 
     state: started
-    enabled: yes
-  notify: restart docker
-    
 
 - name: Change daemon.json
   #shell: echo "{"exec-opts": ["native.cgroupdriver=systemd"]}" >> /etc/docker/daemon.json
@@ -55,34 +62,43 @@
       line: '{"exec-opts": ["native.cgroupdriver=systemd"]}'
       create: yes
 
-- name: Add user to docker group
-  user:
-      name: joaopereira
-      group: docker
-
-# - name: Create user called tester with hashed password
+# - name: Add user to docker group
 #   user:
-#           name: "{{ common_username }}"
-#           password: "{{ common_password }}"
+#       name: joaopereira
+#       group: docker
 
+# Install kubernetes
+- name: Remove swap file
+  ansible.posix.mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  with_items: "{{ swap_items }}"
 
-# - name: Add user tester to the sudo group
-#   user:
-#           name: "{{ common_username }}"
-#           groups: sudo
-#           append: yes
+- name: Disable swap
+  command: swapoff -a
+  when: ansible_swaptotal_mb > 0
 
+- name: Add an apt signing key for Kubernetes
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
 
-# - name: Prepare user tester for ssh public key authentication
-#   authorized_key:
-#           user: "{{ common_username }}"
-#           key: "{{ common_local_public_key }}"
+- name: Adding apt repository for Kubernetes
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    filename: kubernetes.list
 
+- name: Install Kubernetes binaries
+  apt: 
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop: "{{ kubernetes_packages }}"
 
-# - name: Make sure OpenNTPD and OpenSSH services are enabled and running
-#   service:
-#           name: "{{ item }}"
-#           enabled: yes
-#           state: started
-
-#   loop: "{{ common_services }}"
+- name: Restart kubelet
+  service:
+    name: kubelet
+    daemon_reload: yes
+    state: restarted

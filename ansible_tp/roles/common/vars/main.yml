@@ -12,6 +12,15 @@ common_packages_https:
     - gnupg-agent
     - software-properties-common
 
+swap_items:
+    - swap
+    - none
+
+kubernetes_packages:
+    - kubelet 
+    - kubeadm 
+    - kubectl
+
 common_username: tester
 common_password: "{{lookup('file', '../files/hashed_password')}}"
 common_local_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"

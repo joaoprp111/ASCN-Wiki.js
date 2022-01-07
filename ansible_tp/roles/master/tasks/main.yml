@@ -1,0 +1,22 @@
+---
+
+- name: Initialize the Kubernetes cluster using kubeadm
+  command: kubeadm init --apiserver-advertise-address="{{ master_ip }}" --apiserver-cert-extra-sans="{{ master_ip }}"  --node-name k8s-master --pod-network-cidr="{{ network }}"
+
+- name: Create a directory for the Kubernetes cluster
+  command: "{{ item }}"
+  with_items:
+    - mkdir -p $HOME/.kube
+    - cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    - chown $(id -u):$(id -g) $HOME/.kube/config
+
+- name: "Example1: Validate if a String or line is present in the file"
+  lineinfile:
+    path: /etc/kubernetes/manifests/kube-scheduler.yaml
+    # String to Search
+    regexp: "- --port=0" 
+    # State is set to Absent to remove if the Searching Line is found
+    state: absent
+
+- name: Restart kubelet service
+  command: systemctl restart kubelet.service
