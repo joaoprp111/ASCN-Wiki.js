@@ -1,2 +1,6 @@
 ---
 
+ymls:
+  - postgres-storage.yml
+  - postgres-deployment.yml
+  - postgres-configmap.yml

@@ -1,0 +1,16 @@
+---
+
+- name: Apply ConfigMap
+  become: yes
+  become_user: "{{ user }}"
+  command: kubectl apply -f postgres-configmap.yml
+
+- name: Apply PV and PVC resources for PostgresSQL
+  become: yes
+  become_user: "{{ user }}"
+  command: kubectl apply -f postgres-storage.yml
+
+- name: Apply deployment
+  become: yes
+  become_user: "{{ user }}"
+  command: kubectl apply -f postgres-deployment.yml

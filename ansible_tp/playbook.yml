@@ -18,11 +18,11 @@
   roles:
     - worker
 
-# - name: Deploy wikijs database in VM3
-#   hosts: wiki-db
-#   become: yes
-#   roles:
-#     - db
+- name: Deploy wikijs database in VM4
+  hosts: wiki_db
+  become: yes
+  roles:
+    - wiki_db
 
 # - name: Deploy wikijs in VM2
 #   hosts: wiki
