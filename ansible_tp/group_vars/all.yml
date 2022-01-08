@@ -4,3 +4,5 @@ master_ip: 10.128.0.2
 worker1_ip: 10.128.0.3
 worker2_ip: 10.128.0.5
 network: "10.128.0.0/16"
+home: /home/joaopereira
+user: joaopereira

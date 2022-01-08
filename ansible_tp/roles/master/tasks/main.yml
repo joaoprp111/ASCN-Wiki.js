@@ -3,12 +3,37 @@
 - name: Initialize the Kubernetes cluster using kubeadm
   command: kubeadm init --pod-network-cidr="{{ network }}" --apiserver-advertise-address="{{ master_ip }}"
 
+# - name: Create a directory for the Kubernetes cluster
+#   command: "{{ item }}"
+#   with_items:
+#     - mkdir -p $HOME/.kube
+#     - cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+#     - chown $(id -u):$(id -g) $HOME/.kube/config
+
 - name: Create a directory for the Kubernetes cluster
-  command: "{{ item }}"
-  with_items:
-    - mkdir -p $HOME/.kube
-    - cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-    - chown $(id -u):$(id -g) $HOME/.kube/config
+  file:
+    path: '{{ home }}/.kube'
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0755'
+    state: directory
+    recurse: yes
+
+- name: Copy admin.conf to .kube/config
+  copy:
+    remote_src: yes
+    src: /etc/kubernetes/admin.conf
+    dest: '{{ home }}/.kube/config'
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0644'
+
+- name: Give config file permissions to the user
+  file:
+    path: '{{ home }}/.kube/config'
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0644'
 
 - name: Remove port
   lineinfile:
@@ -22,11 +47,18 @@
   command: systemctl restart kubelet.service
 
 - name: Deploy flannel network
+  become: yes
+  become_user: "{{ user }}"
   command: kubectl apply -f kube-flannel.yaml
 
 - name: Generate kube join command
+  become: yes
+  become_user: "{{ user }}"
   command: kubeadm token create --print-join-command
   register: join_command
 
 - name: Copy join command to local file
+  become: yes
+  become_user: "{{ user }}"
   local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+
