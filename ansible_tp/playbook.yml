@@ -6,6 +6,18 @@
   roles: 
     - common
 
+- name: Master tasks
+  hosts: master
+  become: yes
+  roles:
+    - master
+
+- name: Workers tasks
+  hosts: worker
+  become: yes
+  roles:
+    - worker
+
 # - name: Deploy wikijs database in VM3
 #   hosts: wiki-db
 #   become: yes

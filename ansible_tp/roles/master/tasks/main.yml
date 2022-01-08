@@ -1,7 +1,7 @@
 ---
 
 - name: Initialize the Kubernetes cluster using kubeadm
-  command: kubeadm init --apiserver-advertise-address="{{ master_ip }}" --apiserver-cert-extra-sans="{{ master_ip }}"  --node-name k8s-master --pod-network-cidr="{{ network }}"
+  command: kubeadm init --pod-network-cidr="{{ network }}" --apiserver-advertise-address="{{ master_ip }}"
 
 - name: Create a directory for the Kubernetes cluster
   command: "{{ item }}"
@@ -10,7 +10,7 @@
     - cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
     - chown $(id -u):$(id -g) $HOME/.kube/config
 
-- name: "Example1: Validate if a String or line is present in the file"
+- name: Remove port
   lineinfile:
     path: /etc/kubernetes/manifests/kube-scheduler.yaml
     # String to Search
@@ -20,3 +20,13 @@
 
 - name: Restart kubelet service
   command: systemctl restart kubelet.service
+
+- name: Deploy flannel network
+  command: kubectl apply -f kube-flannel.yaml
+
+- name: Generate kube join command
+  command: kubeadm token create --print-join-command
+  register: join_command
+
+- name: Copy join command to local file
+  local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
