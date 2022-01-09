@@ -6,5 +6,5 @@ metadata:
     app: postgres
 data:
   POSTGRES_DB: wiki
-  POSTGRES_USER: wiki
-  POSTGRES_PASSWORD: test123
+  POSTGRES_USER: wikijs
+  POSTGRES_PASSWORD: wikijsrocks

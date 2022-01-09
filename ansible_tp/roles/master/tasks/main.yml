@@ -1,14 +1,7 @@
 ---
 
-- name: Reset kubernetes and remove old files
-  command: "{{ item }}"
-  with_items:
-    - kubeadm reset --force
-    - rm -rf /etc/cni/net.d
-    - rm -rf "{{ home }}"/.kube/config
-
 - name: Initialize the Kubernetes cluster using kubeadm
-  command: kubeadm init --pod-network-cidr="{{ network }}" --apiserver-advertise-address="{{ master_ip }}"
+  command: kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address="{{ master_ip }}"
 
 # - name: Create a directory for the Kubernetes cluster
 #   command: "{{ item }}"
@@ -53,6 +46,16 @@
 - name: Restart kubelet service
   command: systemctl restart kubelet.service
 
+- name: Change interface name in flannel yaml
+  lineinfile:
+    path: kube-flannel.yaml
+    # String to Search
+    regexp: '^        - --iface=eth1 #TODO: need to change this to your interface$' 
+    line: '        - --iface=ens4 #TODO: need to change this to your interface'
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0644'
+
 - name: Deploy flannel network
   become: yes
   become_user: "{{ user }}"
@@ -94,5 +97,7 @@
   become: yes
   become_user: "{{ user }}"
   command: kubectl apply -f postgres-service.yml
+
+
 
 

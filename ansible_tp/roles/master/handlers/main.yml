@@ -1,0 +1,6 @@
+- name: delete older cni ip address
+  command: "{{ item }}"
+  with_items:
+    - ip link set cni0 down && ip link set flannel.1 down 
+    - ip link delete cni0 && ip link delete flannel.1
+    - systemctl restart containerd && systemctl restart kubelet

@@ -3,6 +3,6 @@
 master_ip: 10.128.0.6
 worker1_ip: 10.128.0.7
 worker2_ip: 10.128.0.8
-network: "10.128.0.0/16"
+#network: "10.244.0.0/16"
 home: /home/joaopereira
 user: joaopereira

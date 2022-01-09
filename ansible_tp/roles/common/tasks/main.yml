@@ -78,6 +78,13 @@
     state: absent
   with_items: "{{ swap_items }}"
 
+- name: Reset kubernetes and remove old files
+  command: "{{ item }}"
+  with_items:
+    - kubeadm reset --force
+    - rm -rf /etc/cni/net.d
+    - rm -rf "{{ home }}"/.kube/config
+
 - name: Disable swap
   command: swapoff -a
   when: ansible_swaptotal_mb > 0
