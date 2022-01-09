@@ -1,5 +1,8 @@
 ---
 
+# - name: dpkg configure
+#   command: dpkg --configure -a
+
 - name: Update system packages
   apt:
           update_cache: yes

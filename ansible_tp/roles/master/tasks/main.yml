@@ -94,3 +94,5 @@
   become: yes
   become_user: "{{ user }}"
   command: kubectl apply -f postgres-service.yml
+
+

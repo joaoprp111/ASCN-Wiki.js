@@ -6,3 +6,4 @@
 
 - name: docker status
   service: name=docker state=started
+
