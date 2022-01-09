@@ -7,4 +7,4 @@ metadata:
 data:
   POSTGRES_DB: wiki
   POSTGRES_USER: wikijs
-  POSTGRES_PASSWORD: wikijsrocks
+  POSTGRES_PASSWORD: "123123"

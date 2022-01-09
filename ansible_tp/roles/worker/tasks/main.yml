@@ -13,8 +13,8 @@
 - name: Join the node to cluster
   command: sh /tmp/join-command.sh
 
-# - name: Remove cni0 device
-#   command: "{{ item }}"
-#   with_items:
-#     - ip link set cni0 down
-#     - ip link delete cni0
+- name: Remove cni0 device
+  command: "{{ item }}"
+  with_items:
+    - ip link set cni0 down
+    - ip link delete cni0

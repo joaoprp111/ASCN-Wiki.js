@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: wiki
+  name: wikijs
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
-    app: wiki
+    app: wikijs
   ports:
       # By default and for convenience, the `targetPort` is set to the same value as the `port` field.
-    - port: 8000 #exported to cluster
+    - port: 80 #exported to cluster
       targetPort: 8000 #used to send requests to the pod
       # Optional field
       # By default and for convenience, the Kubernetes control plane will allocate a port from a range (default: 30000-32767)
@@ -17,23 +17,26 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wiki
+  name: wikijs
   labels:
-    app: wiki
+    app: wikijs
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: wiki
+      app: wikijs
   template:
     metadata:
       labels:
-        app: wiki
+        app: wikijs
     spec:
       containers:
-      - name: wiki
+      - name: wikijs
         image: requarks/wiki:2
+        imagePullPolicy: "IfNotPresent"
         env:
+        - name: DB_TYPE
+          value: postgres
         - name: DB_HOST
           value: postgres
         - name: DB_PORT
@@ -41,12 +44,12 @@ spec:
         - name: DB_USER
           value: wikijs
         - name: DB_PASS
-          value: wikijsrocks
+          value: "123123"
         - name: DB_NAME
           value: wiki
         ports:
         - containerPort: 8000
-          name: wiki
+          name: wikijs
       # topologySpreadConstraints:
       # - maxSkew: 1
       #   topologyKey: kubernetes.io/hostname
