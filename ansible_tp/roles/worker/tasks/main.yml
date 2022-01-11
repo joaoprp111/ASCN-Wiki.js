@@ -15,8 +15,13 @@
 - name: Join the node to cluster
   command: sh /tmp/join-command.sh
 
+- name: Check cni0 device
+  shell: ip addr | grep cni0
+  register: cni0_check
+
 - name: Remove cni0 device
   command: "{{ item }}"
   with_items:
     - ip link set cni0 down
     - ip link delete cni0
+  when: cni0_check.stdout | length > 0

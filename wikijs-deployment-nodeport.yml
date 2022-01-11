@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: wikijs
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: wikijs
   ports:
@@ -21,7 +21,7 @@ metadata:
   labels:
     app: wikijs
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: wikijs

@@ -2,7 +2,7 @@
 
 # - name: dpkg configure
 #   command: dpkg --configure -a
-
+  
 - name: Update system packages
   apt:
           update_cache: yes
@@ -78,7 +78,11 @@
     state: absent
   with_items: "{{ swap_items }}"
 
-- name: Reset kubernetes and remove old files
+- name: Check if kubernetes is installed
+  package_facts:
+    manager: "auto"
+
+- name: Reset kubernetes and remove old files if exists
   command: "{{ item }}"
   with_items:
     - kubeadm reset --force
@@ -86,6 +90,7 @@
     - rm -rf "{{ home }}"/.kube/config
   args:
     warn: false
+  when: "'kubeadm' in ansible_facts.packages"
 
 - name: Disable swap
   command: swapoff -a

@@ -88,10 +88,15 @@
   become_user: "{{ user }}"
   command: kubectl apply -f postgres-deployment.yml
 
-- name: Apply wikijs deployment
+- name: Apply wikijs LoadBalancer deployment
   become: yes
   become_user: "{{ user }}"
   command: kubectl apply -f wikijs-deployment.yml
+
+- name: Apply wikijs NodePort deployment
+  become: yes
+  become_user: "{{ user }}"
+  command: kubectl apply -f wikijs-deployment-nodeport.yml 
 
 
 
