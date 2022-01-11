@@ -8,7 +8,7 @@ spec:
     app: wikijs
   ports:
       # By default and for convenience, the `targetPort` is set to the same value as the `port` field.
-    - port: 3000 #exported to cluster
+    - port: 80 #exported to cluster
       targetPort: 3000 #used to send requests to the pod
       # Optional field
       # By default and for convenience, the Kubernetes control plane will allocate a port from a range (default: 30000-32767)
