@@ -93,11 +93,89 @@
   become_user: "{{ user }}"
   command: kubectl apply -f wikijs-deployment.yml
 
-- name: Apply wikijs NodePort deployment
+# - name: Apply wikijs NodePort deployment
+#   become: yes
+#   become_user: "{{ user }}"
+#   command: kubectl apply -f wikijs-deployment-nodeport.yml 
+
+- name: Download Elasticsearch
+  get_url:
+    url: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.2-linux-x86_64.tar.gz
+    dest: "{{ home }}"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0644'
+
+- name: Unpack Elasticsearch
+  unarchive:
+    src: '{{ home }}/elasticsearch-7.16.2-linux-x86_64.tar.gz'
+    dest: "{{ home }}"
+    remote_src: yes
+
+- name: Give config file permissions to the user
+  file:
+    path: '{{ home }}/elasticsearch-7.16.2/config/elasticsearch.yml'
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0644'
+
+- name: Configure Elasticsearch 1
+  replace:
+    path: '{{ home }}/elasticsearch-7.16.2/config/elasticsearch.yml'
+    regexp: '#network.host: 192.168.0.1'
+    replace: 'network.host: {{ master_ip }}'
+
+- name: Configure Elasticsearch 2
+  replace:
+    path: '{{ home }}/elasticsearch-7.16.2/config/elasticsearch.yml'
+    regexp: '#discovery.seed_hosts: \["host1", "host2"\]'
+    replace: 'discovery.seed_hosts: []'
+
+- name: Configure Elasticsearch 3
+  replace:
+    path: '{{ home }}/elasticsearch-7.16.2/config/elasticsearch.yml'
+    regexp: '#cluster.initial_master_nodes: \["node-1", "node-2"\]'
+    replace: 'cluster.initial_master_nodes: ["{{ master_ip }}"]'
+
+- name: Install Java
+  apt:
+          name: "{{ item }}"
+          force_apt_get: yes
+          install_recommends: yes
+          state: latest
+  loop: "{{ java_packages }}"
+
+
+#Necessário
+- name: Set JAVA_HOME
+  lineinfile:
+    dest: /etc/environment
+    state: present
+    regexp: '^JAVA_HOME'
+    line: 'JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64'
+
+- name: Run elasticsearch
   become: yes
   become_user: "{{ user }}"
-  command: kubectl apply -f wikijs-deployment-nodeport.yml 
+  shell: ./bin/elasticsearch
+  args:
+    chdir: elasticsearch-7.16.2/
 
+- name: Increase VM map count
+  shell: sysctl -w vm.max_map_count=262144
 
+- name: Download Kibana
+  get_url:
+    url: https://artifacts.elastic.co/downloads/kibana/kibana-7.16.2-linux-x86_64.tar.gz
+    dest: "{{ home }}"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0644'
+
+- name: Unpack Kibana
+  unarchive:
+    src: '{{ home }}/kibana-7.16.2-linux-x86_64.tar.gz'
+    dest: "{{ home }}"
+    remote_src: yes
 
 

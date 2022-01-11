@@ -4,3 +4,7 @@ ymls:
   - postgres-storage.yml
   - postgres-deployment.yml
   - postgres-configmap.yml
+
+java_packages:
+  - default-jre
+  - default-jdk
