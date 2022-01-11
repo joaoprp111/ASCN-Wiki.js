@@ -78,30 +78,20 @@
 #   local_action: copy content="../templates/{{ item }}" dest="{{ home }}/{{ item }}"
 #   loop: "{{ ymls }}"
 
-- name: Apply ConfigMap for PostgresSQL
-  become: yes
-  become_user: "{{ user }}"
-  command: kubectl apply -f postgres-configmap.yml
-
 - name: Apply PV and PVC resources for PostgresSQL
   become: yes
   become_user: "{{ user }}"
-  command: kubectl apply -f postgres-storage.yml
+  command: kubectl apply -f postgres-pv.yml
 
 - name: Apply PostgresSQL deployment
   become: yes
   become_user: "{{ user }}"
   command: kubectl apply -f postgres-deployment.yml
 
-- name: Apply PostgresSQL service
-  become: yes
-  become_user: "{{ user }}"
-  command: kubectl apply -f postgres-service.yml
-
 - name: Apply wikijs deployment
   become: yes
   become_user: "{{ user }}"
-  command: kubectl apply -f wiki-deployment.yml
+  command: kubectl apply -f wikijs-deployment.yml
 
 
 
