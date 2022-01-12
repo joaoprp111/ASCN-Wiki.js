@@ -3,6 +3,7 @@
 master_ip: 10.128.0.9
 worker1_ip: 10.128.0.10
 worker2_ip: 10.128.0.11
+master_external_ip: 35.202.42.200
 #network: "10.128.0.0/16"
 home: /home/joaopereira
 user: joaopereira

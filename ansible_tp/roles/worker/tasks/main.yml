@@ -25,3 +25,49 @@
     - ip link set cni0 down
     - ip link delete cni0
   when: '"cni0" in cni0_check.stdout'
+
+- name: Download MetricBeat
+  get_url:
+    url: https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-7.16.2-linux-x86_64.tar.gz
+    dest: "{{ home }}"
+
+- name: Unpack MetricBeat
+  unarchive:
+    src: '{{ home }}/metricbeat-7.16.2-linux-x86_64.tar.gz'
+    dest: "{{ home }}"
+    remote_src: yes
+
+- name: Recursively change ownership of MetricBeat directory
+  file:
+    path: metricbeat-7.16.2-linux-x86_64/
+    state: directory
+    recurse: yes
+    owner: "{{ user }}"
+    group: "{{ user }}"
+
+- name: Configure MetricBeat 1
+  replace:
+    path: '{{ home }}/metricbeat-7.16.2-linux-x86_64/metricbeat.yml'
+    regexp: '#host: "localhost:5601"'
+    replace: 'host: "{{ master_ip }}:5601"'
+
+- name: Configure MetricBeat 2
+  replace:
+    path: '{{ home }}/metricbeat-7.16.2-linux-x86_64/metricbeat.yml'
+    regexp: 'hosts: \["localhost:9200"\]'
+    replace: 'hosts: ["{{ master_ip }}:9200"]'
+
+- name: MetricBeat Setup
+  become: yes
+  become_user: "{{ user }}"
+  shell: ./metricbeat setup
+  args:
+    chdir: metricbeat-7.16.2-linux-x86_64/
+
+- name: Start daemon
+  become: yes
+  become_user: "{{ user }}"
+  shell: ./metricbeat -e &
+  args:
+    chdir: metricbeat-7.16.2-linux-x86_64/
+  

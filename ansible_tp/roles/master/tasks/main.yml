@@ -93,31 +93,16 @@
   become_user: "{{ user }}"
   command: kubectl apply -f wikijs-deployment.yml
 
-# - name: Apply wikijs NodePort deployment
-#   become: yes
-#   become_user: "{{ user }}"
-#   command: kubectl apply -f wikijs-deployment-nodeport.yml 
-
 - name: Download Elasticsearch
   get_url:
     url: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.2-linux-x86_64.tar.gz
     dest: "{{ home }}"
-    owner: "{{ user }}"
-    group: "{{ user }}"
-    mode: '0644'
 
 - name: Unpack Elasticsearch
   unarchive:
     src: '{{ home }}/elasticsearch-7.16.2-linux-x86_64.tar.gz'
     dest: "{{ home }}"
     remote_src: yes
-
-- name: Give config file permissions to the user
-  file:
-    path: '{{ home }}/elasticsearch-7.16.2/config/elasticsearch.yml'
-    owner: "{{ user }}"
-    group: "{{ user }}"
-    mode: '0644'
 
 - name: Configure Elasticsearch 1
   replace:
@@ -145,37 +130,65 @@
           state: latest
   loop: "{{ java_packages }}"
 
-
-#Necessário
 - name: Set JAVA_HOME
   lineinfile:
     dest: /etc/environment
     state: present
     regexp: '^JAVA_HOME'
-    line: 'JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64'
+    line: 'JAVA_HOME=/usr/'
+
+- name: Recursively change ownership of elasticsearch directory
+  file:
+    path: elasticsearch-7.16.2/
+    state: directory
+    recurse: yes
+    owner: "{{ user }}"
+    group: "{{ user }}"
+
+- name: Increase VM map count
+  shell: sysctl -w vm.max_map_count=262144
 
 - name: Run elasticsearch
   become: yes
   become_user: "{{ user }}"
-  shell: ./bin/elasticsearch
-  args:
-    chdir: elasticsearch-7.16.2/
-
-- name: Increase VM map count
-  shell: sysctl -w vm.max_map_count=262144
+  shell: ./elasticsearch-7.16.2/bin/elasticsearch &
 
 - name: Download Kibana
   get_url:
     url: https://artifacts.elastic.co/downloads/kibana/kibana-7.16.2-linux-x86_64.tar.gz
     dest: "{{ home }}"
-    owner: "{{ user }}"
-    group: "{{ user }}"
-    mode: '0644'
 
 - name: Unpack Kibana
   unarchive:
     src: '{{ home }}/kibana-7.16.2-linux-x86_64.tar.gz'
     dest: "{{ home }}"
     remote_src: yes
+
+- name: Recursively change ownership of kibana directory
+  file:
+    path: kibana-7.16.2-linux-x86_64/
+    state: directory
+    recurse: yes
+    owner: "{{ user }}"
+    group: "{{ user }}"
+
+- name: Configure Kibana 1
+  replace:
+    path: '{{ home }}/kibana-7.16.2-linux-x86_64/config/kibana.yml'
+    regexp: '#server.host: "localhost"'
+    replace: 'server.host: {{ master_ip }}'
+
+- name: Configure Kibana 2
+  replace:
+    path: '{{ home }}/kibana-7.16.2-linux-x86_64/config/kibana.yml'
+    regexp: '#elasticsearch.hosts: \["http://localhost:9200"\]'
+    replace: 'elasticsearch.hosts: ["http://{{ master_ip }}:9200"]'
+
+- name: Run Kibana
+  become: yes
+  become_user: "{{ user }}"
+  shell: ./kibana-7.16.2-linux-x86_64/bin/kibana &
+
+  
 
 
