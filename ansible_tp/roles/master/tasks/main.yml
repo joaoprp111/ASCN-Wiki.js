@@ -93,16 +93,16 @@
   become_user: "{{ user }}"
   command: kubectl apply -f wikijs-deployment.yml
 
-# - name: Download Elasticsearch
-#   get_url:
-#     url: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.2-linux-x86_64.tar.gz
-#     dest: "{{ home }}"
+- name: Download Elasticsearch
+  get_url:
+    url: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.2-linux-x86_64.tar.gz
+    dest: "{{ home }}"
 
-# - name: Unpack Elasticsearch
-#   unarchive:
-#     src: '{{ home }}/elasticsearch-7.16.2-linux-x86_64.tar.gz'
-#     dest: "{{ home }}"
-#     remote_src: yes
+- name: Unpack Elasticsearch
+  unarchive:
+    src: '{{ home }}/elasticsearch-7.16.2-linux-x86_64.tar.gz'
+    dest: "{{ home }}"
+    remote_src: yes
 
 - name: Configure Elasticsearch 1
   replace:
@@ -162,16 +162,16 @@
 #   args:
 #     chdir: '{{ home }}/elasticsearch-7.16.2/bin/'
 
-# - name: Download Kibana
-#   get_url:
-#     url: https://artifacts.elastic.co/downloads/kibana/kibana-7.16.2-linux-x86_64.tar.gz
-#     dest: "{{ home }}"
+- name: Download Kibana
+  get_url:
+    url: https://artifacts.elastic.co/downloads/kibana/kibana-7.16.2-linux-x86_64.tar.gz
+    dest: "{{ home }}"
 
-# - name: Unpack Kibana
-#   unarchive:
-#     src: '{{ home }}/kibana-7.16.2-linux-x86_64.tar.gz'
-#     dest: "{{ home }}"
-#     remote_src: yes
+- name: Unpack Kibana
+  unarchive:
+    src: '{{ home }}/kibana-7.16.2-linux-x86_64.tar.gz'
+    dest: "{{ home }}"
+    remote_src: yes
 
 - name: Recursively change ownership of kibana directory
   file:
