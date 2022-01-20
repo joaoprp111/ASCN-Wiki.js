@@ -93,16 +93,16 @@
   become_user: "{{ user }}"
   command: kubectl apply -f wikijs-deployment.yml
 
-- name: Download Elasticsearch
-  get_url:
-    url: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.2-linux-x86_64.tar.gz
-    dest: "{{ home }}"
+# - name: Download Elasticsearch
+#   get_url:
+#     url: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.2-linux-x86_64.tar.gz
+#     dest: "{{ home }}"
 
-- name: Unpack Elasticsearch
-  unarchive:
-    src: '{{ home }}/elasticsearch-7.16.2-linux-x86_64.tar.gz'
-    dest: "{{ home }}"
-    remote_src: yes
+# - name: Unpack Elasticsearch
+#   unarchive:
+#     src: '{{ home }}/elasticsearch-7.16.2-linux-x86_64.tar.gz'
+#     dest: "{{ home }}"
+#     remote_src: yes
 
 - name: Configure Elasticsearch 1
   replace:
@@ -119,8 +119,10 @@
 - name: Configure Elasticsearch 3
   replace:
     path: '{{ home }}/elasticsearch-7.16.2/config/elasticsearch.yml'
-    regexp: '#cluster.initial_master_nodes: \["node-1", "node-2"\]'
+    regexp: '#cluster.initial_master_nodes: \["node\-1", "node\-2"\]'
     replace: 'cluster.initial_master_nodes: ["{{ master_ip }}"]'
+    
+
 
 - name: Install Java
   apt:
@@ -148,21 +150,28 @@
 - name: Increase VM map count
   shell: sysctl -w vm.max_map_count=262144
 
-- name: Run elasticsearch
-  become: yes
-  become_user: "{{ user }}"
-  shell: ./elasticsearch-7.16.2/bin/elasticsearch &
+# - name: Run Elasticsearch
+#   shell: cd /tmp/www; nohup  bash elasticsearch </dev/null >/dev/null 2>&1 &
+#   args:
+#     chdir: '{{ home }}/elasticsearch-7.16.2/bin/'
 
-- name: Download Kibana
-  get_url:
-    url: https://artifacts.elastic.co/downloads/kibana/kibana-7.16.2-linux-x86_64.tar.gz
-    dest: "{{ home }}"
+# - name: Run elasticsearch
+#   become: yes
+#   become_user: "{{ user }}"
+#   shell: ./bin/elasticsearch &
+#   args:
+#     chdir: '{{ home }}/elasticsearch-7.16.2/bin/'
 
-- name: Unpack Kibana
-  unarchive:
-    src: '{{ home }}/kibana-7.16.2-linux-x86_64.tar.gz'
-    dest: "{{ home }}"
-    remote_src: yes
+# - name: Download Kibana
+#   get_url:
+#     url: https://artifacts.elastic.co/downloads/kibana/kibana-7.16.2-linux-x86_64.tar.gz
+#     dest: "{{ home }}"
+
+# - name: Unpack Kibana
+#   unarchive:
+#     src: '{{ home }}/kibana-7.16.2-linux-x86_64.tar.gz'
+#     dest: "{{ home }}"
+#     remote_src: yes
 
 - name: Recursively change ownership of kibana directory
   file:
@@ -176,18 +185,26 @@
   replace:
     path: '{{ home }}/kibana-7.16.2-linux-x86_64/config/kibana.yml'
     regexp: '#server.host: "localhost"'
-    replace: 'server.host: {{ master_ip }}'
+    replace: 'server.host: "{{ master_ip }}"'
 
 - name: Configure Kibana 2
   replace:
     path: '{{ home }}/kibana-7.16.2-linux-x86_64/config/kibana.yml'
-    regexp: '#elasticsearch.hosts: \["http://localhost:9200"\]'
+    regexp: '#elasticsearch.hosts: \["http:\/\/localhost:9200"\]'
     replace: 'elasticsearch.hosts: ["http://{{ master_ip }}:9200"]'
 
-- name: Run Kibana
-  become: yes
-  become_user: "{{ user }}"
-  shell: ./kibana-7.16.2-linux-x86_64/bin/kibana &
+# - name: Run Kibana
+#   become: yes
+#   shell: cd /tmp/www; nohup  bash kibana --allow-root </dev/null >/dev/null 2>&1 &
+#   args:
+#     chdir: '{{ home }}/kibana-7.16.2-linux-x86_64/bin/'
+
+# - name: Run Kibana
+#   become: yes
+#   become_user: "{{ user }}"
+#   shell: ./bin/kibana &
+#   args:
+#     chdir: '{{ home }}/kibana-7.16.2-linux-x86_64/bin/'
 
   
 

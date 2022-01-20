@@ -57,17 +57,17 @@
     regexp: 'hosts: \["localhost:9200"\]'
     replace: 'hosts: ["{{ master_ip }}:9200"]'
 
-- name: MetricBeat Setup
-  become: yes
-  become_user: "{{ user }}"
-  shell: ./metricbeat setup
-  args:
-    chdir: metricbeat-7.16.2-linux-x86_64/
+# - name: MetricBeat Setup
+#   become: yes
+#   become_user: "{{ user }}"
+#   shell: ./metricbeat setup
+#   args:
+#     chdir: '{{ home }}/metricbeat-7.16.2-linux-x86_64/'
 
-- name: Start daemon
-  become: yes
-  become_user: "{{ user }}"
-  shell: ./metricbeat -e &
-  args:
-    chdir: metricbeat-7.16.2-linux-x86_64/
+# - name: Start daemon
+#   become: yes
+#   become_user: "{{ user }}"
+#   shell: ./metricbeat -e &
+#   args:
+#     chdir: '{{ home }}/metricbeat-7.16.2-linux-x86_64/'
   
